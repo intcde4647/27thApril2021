@@ -1,0 +1,226 @@
+
+
+Q What is the difference between primary key and unique key?
+
+Q What is composite primary key?
+
+Let us take an example, suppose you all have employee id and
+we have given you some assessments which you have to give.
+So the same employee will go for multiple assessments. so
+in this kind of situation neither the employee id only or the 
+assessment id itself can be used to identify the records.
+But if we go for the combination of both the employee id and assessment id
+as primary key ( composite primary key )
+
+   empid examid score
+   E0001  AS-001  70
+   E0001  AS-002  90
+   E0002  AS-001  78
+----------------------------------------------------------------------------------------------------------
+Q What are constraints?
+-------------------------------------------------------------------------------------------
+Q What are different types of constraints?
+  * Primary key
+  * Foreign key
+  * Not null
+  * unique key
+  * check constraint
+--------------------------------------------------------------------------------------------------------
+Q When we apply constraint , we have two ways of applying constraints.
+ * table level constraint
+ * column level constraint
+   CREATE table employee_master (
+    code VARCHAR(5) PRIMARY KEY,     /* column level constraint which means when we are declaring the column 
+                                      along with the column itself we are defining the constraint */
+    name VARCHAR(20) NOT NULL,
+    desig VARCHAR(20) NOT NULL
+   );
+------------------------------------------------------------------------------------------------------
+  CREATE TABLE employee_master (
+    code VARCHAR(5),     
+    name VARCHAR(20) NOT NULL,
+    desig VARCHAR(20) NOT NULL,
+    CONSTRAINT employee_master_code_pk PRIMARY KEY(code)
+   );
+
+/* The above example is of table level constraint */
+------------------------------------------------------------------------------------------------
+Q Why we have both the techniques?
+
+CREATE TABLE RESULT_DETAILS (
+empid VARCHAR(5) PRIMARY KEY,
+examid VARCHAR(5) PRIMARY KEY,
+score  INT(5)
+);
+
+SQL engine will start considering it as two primary keys.
+
+CREATE TABLE result_details (
+empid VARCHAR(5),
+examid VARCHAR(5),
+score  INT(5),
+CONSTRAINT result_details_empid_examid_pk PRIMARY KEY(empid,examid)
+);
+
+In the above case we dont have an option but to rely on the table level constraint.
+---------------------------------------------------------------------------------------------------
+Q Can you name the constraint which is available only at a column level
+A not null.
+--------------------------------------------------------------------------------------------------
+[ Note : Check constraint won't work in case of MYSQL ]
+-------------------------------------------------------------------------------------------------------------
+
+Q We missed primary key and latter on with alter table we are adding the primary key. So what challenge
+we may face.
+CREATE TABLE student_master (
+   roll INT(3),
+   name VARCHAR(20);
+  );
+ INSERT INTO student_master VALUES(1,'Ram');
+ INSERT INTO student_master VALUES(1,'Ravi');
+ALTER TABLE STUDENT_INFO ADD PRIMARY KEY(STUDENT_ID);
+
+The above alter command won't work because we already had some violation of record insertion.
+-------------------------------------------------------------------------------------------------------- 
+  
+Q Why we use foreign key .
+
+A For linking table in RDBMS.
+
+
+Q So if we dont define foreign key what may happen.
+
+    Scenario Customers purchasing items . So we have 3 tables customer_master, item_master and transaction
+
+    customer_master 
+    cust_id  cust_name cust_address
+    C0001    Ravi       Delhi
+    C0002    Ashish     Agra
+  
+   item_master
+    item_id  item_name item_price
+    I0001    Pen        150
+    I0002    Pencil     5
+
+
+   item_transaction
+    cust_id  item_id  date_of_pur  qty_pur
+    C0003    I0001     2018-10-19   1
+
+The above situation may arise if we don't go for referential integrity constraint.
+
+
+CREATE TABLE customer_master (
+    cust_id VARCHAR(5),
+    cust_name VARCHAR(20) NOT NULL,
+    cust_address VARCHAR(20) NOT NULL,
+    CONSTRAINT customer_master_cust_id_pk PRIMARY KEY(cust_id)
+   );
+
+INSERT INTO customer_master VALUES ( 'C0001','Ram','Delhi');
+INSERT INTO customer_master VALUES ( 'C0002','Sashi','Chennai');
+
+CREATE TABLE item_master (
+    item_id VARCHAR(5),
+    item_name VARCHAR(20) NOT NULL,
+    item_price FLOAT(6,2) NOT NULL,
+    CONSTRAINT item_master_item_id_pk PRIMARY KEY(item_id)
+   );
+
+INSERT INTO item_master VALUES ( 'I0001','Pen',100.20);
+INSERT INTO item_master VALUES ( 'I0002','Pencil',5);
+
+
+
+CREATE TABLE item_transaction (
+     custid VARCHAR(5),
+     itemid VARCHAR(5),
+     date_of_pur DATE,
+     qty_pur INT(5),
+     CONSTRAINT item_transaction_custid_fk FOREIGN KEY(custid) REFERENCES customer_master(cust_id),
+     CONSTRAINT item_transaction_itemid_fk FOREIGN KEY(itemid) REFERENCES item_master(item_id)
+   );
+
+INSERT INTO item_transaction VALUES ('C0001','I0001','2021-01-21',2);
+
+
+
+Try to delete the record C0001 from customer_master.
+
+Try to delete the record I0001 from item_master.
+       
+
+----------------------------------------------------------
+
+CREATE TABLE customer_master1 (
+    cust_id VARCHAR(5),
+    cust_name VARCHAR(20) NOT NULL,
+    cust_address VARCHAR(20) NOT NULL,
+    CONSTRAINT customer_master1_cust_id_pk PRIMARY KEY(cust_id)
+   );
+
+INSERT INTO customer_master1 VALUES ( 'C0001','Ram','Delhi');
+INSERT INTO customer_master1 VALUES ( 'C0002','Sashi','Chennai');
+
+
+CREATE TABLE item_master1 (
+    item_id VARCHAR(5),
+    item_name VARCHAR(20) NOT NULL,
+    item_price FLOAT(6,2) NOT NULL,
+    CONSTRAINT item_master1_item_id_pk PRIMARY KEY(item_id)
+   );
+
+INSERT INTO item_master1 VALUES ( 'I0001','Pen',100.20);
+INSERT INTO item_master1 VALUES ( 'I0002','Pencil',5);
+
+
+CREATE TABLE item_transaction1 (
+     custid VARCHAR(5),
+     itemid VARCHAR(5),
+     date_of_pur DATE,
+     qty_pur INT(5),
+     CONSTRAINT item_transaction1_custid_fk FOREIGN KEY(custid) REFERENCES customer_master1(cust_id) ON UPDATE CASCADE ON DELETE CASCADE,
+     CONSTRAINT item_transaction1_itemid_fk FOREIGN KEY(itemid) REFERENCES item_master1(item_id) ON UPDATE CASCADE ON DELETE CASCADE
+   );
+
+  
+
+INSERT INTO item_transaction1 VALUES ('C0001','I0001','2021-01-21',2);
+
+-----------------------------------------------------------------------------------------
+Join 
+Display cust_id ,cust_name item_id and date_of_pur.
+
+SELECT cust_id,cust_name, item_id, date_of_pur
+FROM customer_master1 JOIN item_transaction1
+ON customer_master1.cust_id=item_transaction1.cust_id
+
+Do you think the above SQL command is correct?
+
+
+
+
+
+
+
+  
+
+  
+   
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+ 
+      
